@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas" width="1200" height="1000"></canvas>
+        <script src="link.js" type="text/javascript"></script>
+        <script src="point_mass.js" type="text/javascript"></script>
+        <script src="physics.js" type="text/javascript"></script>
+        <script>
+            var canvas = document.getElementById('canvas');
+            var physics = new Physics(canvas);
+
+            physics.initialize(100);
+            
+            setInterval(function() {
+                physics.render();
+            }, 15);
+
+        </script>
+    </body>
+</html> 
