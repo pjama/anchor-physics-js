@@ -3,10 +3,17 @@ var X0 					= 500,
 		Y0 					= 200;
 var LINK_LENGTH = 5;
 
+
 function Physics(canvas) {
 	var mCanvas 			= canvas;
 	var mPointMasses 	= [];
 	var mLinks 				= [];
+
+	var mCurrTime,
+			mPrevTime 				= Date.now(),
+			mLeftOverDeltaT 	= 0,
+			mFixedDeltaT 			= 16,
+			mDeltaT;
 
 	this.initialize = function(numLinks) {
 		var currPointMass = new PointMass(X0,Y0, MASS);
@@ -27,13 +34,25 @@ function Physics(canvas) {
 	}; // initialize
 
 	this.render = function() {
-		solveConstraints();
-		updatePoints(0.015);
-		solveLinks();
 
-		clearCanvas();
-		drawPoints();
-		drawLinks();
+		mCurrTime = Date.now();
+		mDeltaT 	= mCurrTime - mPrevTime;
+		mPrevTime = mCurrTime;
+
+		var numTimesteps = (mDeltaT + mLeftOverDeltaT) / mFixedDeltaT;
+		numTimesteps = Math.min(numTimesteps, 5);
+
+		mLeftOverDeltaT = mDeltaT - (numTimesteps * mFixedDeltaT);
+
+		for (var i = 0; i < numTimesteps; i++) {
+			solveConstraints();
+			updatePoints(mFixedDeltaT / 1000);
+			solveLinks();
+
+			clearCanvas();
+			drawPoints();
+			drawLinks();
+		}
 	}; // render
 
 	function solveConstraints() {

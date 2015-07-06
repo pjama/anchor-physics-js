@@ -19,9 +19,11 @@
 
             physics.initialize(100);
             
-            setInterval(function() {
+            function updatePhysics() {
                 physics.render();
-            }, 15);
+                setTimeout(updatePhysics, 0);
+            }
+            setTimeout(updatePhysics, 0);
 
         </script>
     </body>
