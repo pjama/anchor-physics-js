@@ -1,11 +1,11 @@
-var Link = function(pointMass1, pointMass2) {
+var Link = function(pointMass1, pointMass2, restingLength) {
 
 	this.p1 = pointMass1;
 	this.p2 = pointMass2;
 
-	var restingDistance = 5;
+	var restingDistance = restingLength;
 	var tearDistance 		= 5;
-	var stiffness 			= 0.99;
+	var stiffness 			= 1;
 
 	var self = this;
 

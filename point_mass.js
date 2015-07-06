@@ -1,6 +1,7 @@
 var PointMass = function(x, y, mass) {
 	var G 		= 98.1,
-			DAMP 	= 1.0;
+			MU		= 50, // viscosity of water
+			DAMP 	= 0.99;
 
 	this.x = x;
 	this.y = y;
@@ -10,6 +11,9 @@ var PointMass = function(x, y, mass) {
 	this.lastX 	= x;
 	this.lastY 	= y;
 
+	this.velX   = 0;
+	this.velY   = 0;
+
 	this.accX 	= 0;
 	this.accY		= 0;
 	
@@ -17,15 +21,15 @@ var PointMass = function(x, y, mass) {
 
 	this.update = function(timestep) {
 		
-		var velX = self.x - self.lastX;
-		var velY = self.y - self.lastY;
+		self.velX = self.x - self.lastX;
+		self.velY = self.y - self.lastY;
 
-		velX *= DAMP;
-		velY *= DAMP;
+		self.velX *= DAMP;
+		self.velY *= DAMP;
 
 		var timestepSq = timestep * timestep;
-		var nextX = self.x + velX + 0.5*self.accX*timestepSq;
-		var nextY = self.y + velY + 0.5*self.accY*timestepSq;
+		var nextX = self.x + self.velX + 0.5*self.accX*timestepSq;
+		var nextY = self.y + self.velY + 0.5*self.accY*timestepSq;
 
 		self.lastX = self.x;
 		self.lastY = self.y;
@@ -44,5 +48,11 @@ var PointMass = function(x, y, mass) {
 
 	this.applyGravity = function() {
 		this.applyForce(0, self.mass*G);
+	}
+
+	this.applyDrag = function() {
+		var Fx = -1 * MU * self.velX;
+		var Fy = -1 * MU * self.velY;
+		this.applyForce(Fx, Fy);
 	}
 }
