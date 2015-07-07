@@ -1,6 +1,6 @@
 var PointMass = function(x, y, mass) {
 	var G 		= 98.1,
-			MU		= 50, // viscosity of water
+			MU		= 200, // viscosity of water
 			DAMP 	= 0.99;
 
 	this.x = x;

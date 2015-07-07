@@ -1,16 +1,20 @@
-var MASS 				= 0.5;
-var X0 					= 200,
-		Y0 					= 500,
-		DEPTH				= 200,
-		WAVE_PERIOD = 998,
-		WAVE_HEIGHT = 50;
-var LINK_LENGTH = 3;
+var MASS 					= 1.2;
+var X0 						= 200,
+		Y0 						= 500,
+		DEPTH					= 200,
+		WAVE_PERIOD 	= 998,
+		WAVE_HEIGHT 	= 25,
+		FORCE_WIND  	= 4000,
+		FORCE_CURRENT = 10;
+
+var LINK_LENGTH = 2;
 
 
 function Physics(canvas) {
 	var mCanvas 			= canvas;
 	var mPointMasses 	= [];
 	var mLinks 				= [];
+	var mAnchor 			= new Anchor();
 
 	var mCurrTime,
 			mPrevTime 				= Date.now(),
@@ -19,11 +23,8 @@ function Physics(canvas) {
 			mFixedDeltaTimeMS = mFixedDeltaT / 1000,
 			mDeltaT;
 
-	var mAnchorSet   		= false,
-			mAnchoringX			= X0;
-
 	this.initialize = function(numLinks) {
-		var currPointMass = new PointMass(X0,Y0 - DEPTH, MASS*10);
+		var currPointMass = new PointMass(X0,Y0 - DEPTH, MASS*20);
 		var nextPointMass;
 
 		mPointMasses.push(currPointMass);
@@ -62,36 +63,14 @@ function Physics(canvas) {
 
 			clearCanvas();
 			drawPoints();
-			drawLinks();
+			// drawLinks();
 		}
 	}; // render
 
 	function solveConstraints() {
-		// Root point anchored to sea bed (where it lands)
-		var rootPoint = mPointMasses[0];
-		if (rootPoint.y >= Y0) {
-			if (!mAnchorSet) {
-				mAnchoringX = rootPoint.x;
-				mAnchorSet = true;
-			}
-			rootPoint.x = mAnchoringX;
-			rootPoint.y = Y0;
-		} else {
-			mAnchorSet = false;
-		}
-
-		// resting on sea bed
-		for (var i = 0; i < mPointMasses.length; i++) {
-			var point = mPointMasses[i];
-			if (point.y > Y0) {
-				point.y = Y0;
-			}
-		}
-
-		// Last Point on surface of water
-		var lastPoint	= mPointMasses[mPointMasses.length - 1];
-		var wave 			= Math.sin(Date.now() / WAVE_PERIOD) * WAVE_HEIGHT;
-		lastPoint.y 	= Y0 - DEPTH + wave;
+		GroundConstraint.solve(mPointMasses, Y0);
+		AnchorConstraint.solve(mPointMasses, Y0, mAnchor);
+		SurfaceConstraint.solve(mPointMasses, waveGenerator, Y0 - DEPTH)
 	}
 
 	function solveLinks() {
@@ -103,12 +82,12 @@ function Physics(canvas) {
 	function updatePoints(timestep) {
 
 		var lastPoint	= mPointMasses[mPointMasses.length - 1];
-		lastPoint.applyForce(2500, 0); 		// wind
+		lastPoint.applyForce(FORCE_WIND, 0); 		// wind
 
 		for(var i = 0; i < mPointMasses.length; i++) {
 			var p = mPointMasses[i];
 			p.applyGravity();
-			p.applyForce(5, 0);  // water current
+			p.applyForce(FORCE_CURRENT, 0);  // water current
 			p.applyDrag();
 			p.update(timestep);
 		}
@@ -124,7 +103,7 @@ function Physics(canvas) {
 
 		for(var i = 0; i < mPointMasses.length; i++) {
 			var p = mPointMasses[i];
-			ctx.fillRect(p.x, p.y, 2, 2);
+			ctx.fillRect(p.x, p.y, 3, 3);
 		}
 	}
 
@@ -138,6 +117,10 @@ function Physics(canvas) {
       ctx.lineTo(link.p2.x, link.p2.y);
       ctx.stroke();
 		}	
+	}
+
+	function waveGenerator(t) {
+		return Math.sin(t / WAVE_PERIOD) * WAVE_HEIGHT
 	}
 }
 
