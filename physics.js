@@ -1,11 +1,14 @@
+var G 				 		= 98.1,
+		MU_WATER 	    = 200; // viscosity of water
+
 var MASS 					= 1.2;
 var X0 						= 200,
 		Y0 						= 500,
 		DEPTH					= 200,
-		WAVE_PERIOD 	= 998,
-		WAVE_HEIGHT 	= 25,
-		FORCE_WIND  	= 4000,
-		FORCE_CURRENT = 10;
+		WAVE_PERIOD 	= 12,
+		WAVE_HEIGHT 	= 50,
+		FORCE_WIND  	= 18000,
+		FORCE_CURRENT = 0;
 
 var LINK_LENGTH = 2;
 
@@ -14,20 +17,20 @@ function Physics(canvas) {
 	var mCanvas 			= canvas;
 	var mPointMasses 	= [];
 	var mLinks 				= [];
-	var mAnchor 			= new Anchor();
+	var mAnchor;
+	var mWave;
 
 	var mCurrTime,
 			mPrevTime 				= Date.now(),
+			mTime 						= 0,
 			mLeftOverDeltaT 	= 0,
 			mFixedDeltaT 			= 16,
 			mFixedDeltaTimeMS = mFixedDeltaT / 1000,
 			mDeltaT;
 
 	this.initialize = function(numLinks) {
-		var currPointMass = new PointMass(X0,Y0 - DEPTH, MASS*20);
+		var currPointMass  = new PointMass(X0,Y0 - DEPTH, MASS);
 		var nextPointMass;
-
-		mPointMasses.push(currPointMass);
 
 		for (var i = 0; i < numLinks; i++) {
 			 var pX = X0;//X0+(i+1)*LINK_LENGTH;
@@ -40,6 +43,14 @@ function Physics(canvas) {
 
 			 currPointMass = nextPointMass;
 		}
+
+		// anchor at the end of the chain
+		mAnchor = new Anchor(X0,Y0 - DEPTH, MASS*20); // 
+		mPointMasses.push(mAnchor);
+
+		link = new Link(nextPointMass, mAnchor, LINK_LENGTH);
+		mLinks.push(link);
+
 	}; // initialize
 
 	this.render = function() {
@@ -52,10 +63,12 @@ function Physics(canvas) {
 		numTimesteps = Math.min(numTimesteps, 5);
 
 		mLeftOverDeltaT = mDeltaT - (numTimesteps * mFixedDeltaT);
+		var tension;
 
 		for (var i = 0; i < numTimesteps; i++) {
-			solveConstraints();
+			solveConstraints(mFixedDeltaTimeMS);
 			updatePoints(mFixedDeltaTimeMS);
+			tension = calculateTension();
 
 			solveLinks();
 			solveLinks();
@@ -63,14 +76,17 @@ function Physics(canvas) {
 
 			clearCanvas();
 			drawPoints();
+
+			mTime += mFixedDeltaTimeMS;
 			// drawLinks();
 		}
 	}; // render
 
-	function solveConstraints() {
+	function solveConstraints(elapsedTime) {
 		GroundConstraint.solve(mPointMasses, Y0);
-		AnchorConstraint.solve(mPointMasses, Y0, mAnchor);
-		SurfaceConstraint.solve(mPointMasses, waveGenerator, Y0 - DEPTH)
+		AnchorConstraint.solve(mAnchor, Y0);
+		mWave = waveGenerator(mTime);
+		SurfaceConstraint.solve(mPointMasses[0], mWave, Y0 - DEPTH);
 	}
 
 	function solveLinks() {
@@ -81,8 +97,8 @@ function Physics(canvas) {
 
 	function updatePoints(timestep) {
 
-		var lastPoint	= mPointMasses[mPointMasses.length - 1];
-		lastPoint.applyForce(FORCE_WIND, 0); 		// wind
+		var firstPoint = mPointMasses[0];
+		firstPoint.applyForce(FORCE_WIND, 0); 		// wind
 
 		for(var i = 0; i < mPointMasses.length; i++) {
 			var p = mPointMasses[i];
@@ -120,7 +136,39 @@ function Physics(canvas) {
 	}
 
 	function waveGenerator(t) {
-		return Math.sin(t / WAVE_PERIOD) * WAVE_HEIGHT
+		// if (t < 20) { return 0; }
+		var k = Math.PI / WAVE_PERIOD;
+		return {
+			posX: 0,
+			posY: Math.sin(k*t) * WAVE_HEIGHT,
+			velX: 0,
+			velY: k*Math.cos(k*t) * WAVE_HEIGHT,
+			accX: 0,
+			accY: -k*k*Math.sin(k*t) * WAVE_HEIGHT
+		};
+	}
+
+	function calculateTension() {
+		// Tension at boat (Sum of forces about origin)
+		var theta; // angle between wind force (0 deg) and anchor tension
+
+		var link = mLinks[0];
+		var pointA = mPointMasses[0],
+				pointB = mPointMasses[1];
+
+		var theta = pointA.angleTo( pointB ); // -π ≤ theta ≤ π
+		var tension;
+		// if (theta == Math.PI/2 || theta == -Math.PI/2) {
+		// 	tension = 0;
+		// } else {
+			// var tensionX = (pointA.mass*pointA.accX - FORCE_WIND) / Math.sin(theta);
+			// var tensionY = (pointA.mass*pointA.accY) / Math.sin(theta);
+			// tension = Math.sqrt(tensionX*tensionX + tensionY*tensionY);
+		var accY = mWave.accY;
+		var totalMass = mPointMasses.length * pointA.mass;
+			tension = totalMass*(mWave.accY - G) / Math.sin(theta);
+		// }
+		return tension;
 	}
 }
 

@@ -1,6 +1,6 @@
 var PointMass = function(x, y, mass) {
-	var G 		= 98.1,
-			MU		= 200, // viscosity of water
+	// var G 		= 98.1,
+	var MU		= 200, // viscosity of water
 			DAMP 	= 0.99;
 
 	this.x = x;
@@ -44,15 +44,30 @@ var PointMass = function(x, y, mass) {
 	this.applyForce = function(Fx, Fy) {
 		self.accX += Fx / self.mass;
 		self.accY += Fy / self.mass;
-	}
+	};
 
 	this.applyGravity = function() {
 		this.applyForce(0, self.mass*G);
-	}
+	};
 
 	this.applyDrag = function() {
 		var Fx = -1 * MU * self.velX;
 		var Fy = -1 * MU * self.velY;
 		this.applyForce(Fx, Fy);
+	};
+
+	this.angleTo = function(point) {
+		var theta;
+
+		if (this.x == point.x) {
+			if (this.y < point.y) {
+				theta = Math.PI / 2;
+			} else {
+				theta -Math.PI/2;
+			}
+		} else {
+			theta = Math.atan((point.y - this.y) / (point.x - this.x));
+		}
+		return theta;
 	}
 }

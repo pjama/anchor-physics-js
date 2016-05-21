@@ -1,18 +1,17 @@
 var AnchorConstraint = {
-	/* 
-	* 	Root point anchored to sea bed (where it lands)
+	/*
+	* 	Anchor point anchored to sea bed (where it lands)
 	*/
-	solve: function(points, Y0, anchor) {
-		var rootPoint = points[0];
-		if (rootPoint.y >= Y0) {
+	solve: function(anchor, Y0) {
+		if (anchor.y >= Y0) {
 			if (!anchor.isSet) {
-				anchor.positionX = rootPoint.x;
+				anchor.positionX = anchor.x;
 				anchor.isSet = true;
 			}
-			rootPoint.x = anchor.positionX;
-			rootPoint.y = Y0;
+			anchor.x = anchor.positionX;
+			anchor.y = Y0;
 		} else {
 			anchor.isSet = false;
 		}
 	}
-}
+};
