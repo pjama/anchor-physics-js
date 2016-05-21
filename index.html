@@ -1,12 +1,9 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <style>
-        body {
-            margin: 0px;
-            padding: 0px;
-        }
-        </style>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/foundation.min.css">
     </head>
     <body>
         <canvas id="canvas" width="1200" height="1000"></canvas>
@@ -22,7 +19,7 @@
             var physics = new Physics(canvas);
 
             physics.initialize(150);
-            
+
             function updatePhysics() {
                 physics.render();
                 setTimeout(updatePhysics, 0);
@@ -30,5 +27,24 @@
             setTimeout(updatePhysics, 0);
 
         </script>
+    <div class="range-slider" data-slider data-options="start: 1; end: 100;">
+      <span class="range-slider-handle" role="slider" tabindex="0"></span>
+      <span class="range-slider-active-segment"></span>
+      <input type="hidden">
+    </div>
+    <div class="range-slider" data-slider data-options="start: 1; end: 100;">
+      <span class="range-slider-handle" role="slider" tabindex="0"></span>
+      <span class="range-slider-active-segment"></span>
+      <input type="hidden">
+    </div>
+    <script>
+      $(document).foundation({
+          slider: {
+            on_change: function(){
+              console.log("changed");
+            }
+          }
+        });
+    </script>
     </body>
-</html> 
+</html>
