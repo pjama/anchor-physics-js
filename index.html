@@ -1,50 +1,51 @@
 <!DOCTYPE HTML>
 <html>
-    <head>
+  <head>
     <link rel="stylesheet" type="text/css" href="style.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/normalize.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/foundation.min.css">
-    </head>
-    <body>
-        <canvas id="canvas" width="1200" height="1000"></canvas>
-        <script src="link.js" type="text/javascript"></script>
-        <script src="point_mass.js" type="text/javascript"></script>
-        <script src="anchor.js" type="text/javascript"></script>
-        <script src="constraints/anchor_constraint.js" type="text/javascript"></script>
-        <script src="constraints/ground_constraint.js" type="text/javascript"></script>
-        <script src="constraints/surface_constraint.js" type="text/javascript"></script>
-        <script src="physics.js" type="text/javascript"></script>
+  </head>
+  <body>
+        <canvas id="canvas" width="1200" height="600"></canvas>
+        <script src="src/constants.js" type="text/javascript"></script>
+        <script src="src/link.js" type="text/javascript"></script>
+        <script src="src/point_mass.js" type="text/javascript"></script>
+        <script src="src/anchor.js" type="text/javascript"></script>
+        <script src="src/boat.js" type="text/javascript"></script>
+        <script src="src/constraints/anchor_constraint.js" type="text/javascript"></script>
+        <script src="src/constraints/ground_constraint.js" type="text/javascript"></script>
+        <script src="src/constraints/surface_constraint.js" type="text/javascript"></script>
+        <script src="src/wave_generator.js" type="text/javascript"></script>
+        <script src="src/canvas_renderer.js" type="text/javascript"></script>
+        <script src="src/slider_controller.js" type="text/javascript"></script>
+        <script src="src/physics.js" type="text/javascript"></script>
         <script>
-            var canvas = document.getElementById('canvas');
-            var physics = new Physics(canvas);
+            const canvas = document.getElementById("canvas");
+            const physics = new Physics(canvas);
 
             physics.initialize(150);
-
-            function updatePhysics() {
-                physics.render();
-                setTimeout(updatePhysics, 0);
+            function runPhysics() {
+              physics.render();
+              setTimeout(runPhysics, 0);
             }
-            setTimeout(updatePhysics, 0);
-
+            runPhysics();
         </script>
-    <div class="range-slider" data-slider data-options="start: 1; end: 100;">
-      <span class="range-slider-handle" role="slider" tabindex="0"></span>
-      <span class="range-slider-active-segment"></span>
-      <input type="hidden">
-    </div>
-    <div class="range-slider" data-slider data-options="start: 1; end: 100;">
-      <span class="range-slider-handle" role="slider" tabindex="0"></span>
-      <span class="range-slider-active-segment"></span>
-      <input type="hidden">
-    </div>
-    <script>
-      $(document).foundation({
-          slider: {
-            on_change: function(){
-              console.log("changed");
-            }
-          }
-        });
-    </script>
-    </body>
+    <table>
+      <tr><td>
+          <label for="sliderWindForce">Wind Force</label>
+          <input id="sliderWindForce" type="range" min="0" max="40000" step="100" value="30000" oninput="updateSlider(this)" />
+      </td></tr>
+      <tr><td>
+          <label for="sliderWaterDepth">Water Depth</label>
+          <input id="sliderWaterDepth" type="range" min="50" max="400" step="1" oninput="updateSlider(this)" />
+      </td></tr>
+      <tr><td>
+          <label for="sliderWaveSize">Wave Size</label>
+          <input id="sliderWaveSize" type="range" min="0" max="25" step=".1" oninput="updateSlider(this)" />
+      </td></tr>
+      <tr><td>
+          <label for="sliderChainWeight">Chain Weight</label>
+          <input id="sliderChainWeight" type="range" min="2" max="8" step="0.01" oninput="updateSlider(this)" />
+      </td></tr>
+      <tr><td>
+  </body>
 </html>
+
