@@ -34,7 +34,6 @@ class CanvasRenderer {
 
   drawWater(ctx, t) {
     const STEP = 5;
-    const ANGLE = 0.25;
     const X_MAX = X0 + 800;
     let y = 0;
     ctx.fillStyle="#3333FF";
@@ -47,8 +46,8 @@ class CanvasRenderer {
       ctx.fill();
 
       ctx.beginPath();
-      ctx.moveTo(x+wave.x+wave.y * ANGLE, wave.y-50);
-      ctx.lineTo(x+wave.x-wave.y * ANGLE, wave.y+50);
+      ctx.moveTo(x+wave.x+50, wave.y-50);
+      ctx.lineTo(x+wave.x-50, wave.y+50);
       ctx.lineWidth = 1;
       ctx.strokeStyle = "#AAAAFF";
       ctx.stroke();
