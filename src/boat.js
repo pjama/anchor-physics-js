@@ -23,6 +23,8 @@ class Boat {
       ctx.beginPath();
       ctx.moveTo(pointA.x, pointA.y);
       ctx.lineTo(pointB.x, pointB.y);
+      ctx.strokeStyle="#444";
+      ctx.lineWidth = 2;
       ctx.stroke();
     }
   }
